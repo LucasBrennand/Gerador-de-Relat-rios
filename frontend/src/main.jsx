@@ -20,7 +20,7 @@ const loadCompany = () => {
 };
 const monthLabel = (value) => value ? new Date(`${value}-15T12:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
 const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+const API_URL = (import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://lure-relatorios-api.onrender.com' : 'http://localhost:8000')).replace(/\/$/, '');
 
 function App() {
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)); const [company, setCompany] = useState(loadCompany); const [sales, setSales] = useState(''); const [graph, setGraph] = useState(null); const [graphUrl, setGraphUrl] = useState(''); const [companyLogo, setCompanyLogo] = useState(null); const [logoUrl, setLogoUrl] = useState(''); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [done, setDone] = useState(false);
