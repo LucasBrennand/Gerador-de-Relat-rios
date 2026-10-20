@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: lure-relatorios-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: FRONTEND_ORIGINS
+        fromService:
+          type: web
+          name: lure-relatorios-site
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: lure-relatorios-site
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: lure-relatorios-api
+          envVarKey: RENDER_EXTERNAL_URL

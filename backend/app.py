@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from calendar import monthrange
 from io import BytesIO
@@ -14,7 +15,8 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Image, KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 app = FastAPI(title="Gerador de Relatório Mensal")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], allow_methods=["*"], allow_headers=["*"])
+frontend_origins = [origin.strip().rstrip("/") for origin in os.getenv("FRONTEND_ORIGINS", "").split(",") if origin.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", *frontend_origins], allow_methods=["*"], allow_headers=["*"])
 
 
 def money(value: float) -> str:

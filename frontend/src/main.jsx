@@ -37,6 +37,7 @@ const sample = `01/08/2026; 1.287,00
 const defaults = { company: 'Luisa Brennand Barbosa Chiaperini · Lure Aromas', cnpj: '13.762.914/0001-31', phone: '(81) 98873-8687', email: 'Lurecosmeticos@hotmail.com', address: 'Rua Cônego Barata, 275 · Quiosque 2 Tamarineira · Recife - PE · CEP 52.051-020' };
 const monthLabel = (value) => value ? new Date(`${value}-15T12:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
 const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 function App() {
   const [month, setMonth] = useState('2026-08'); const [company, setCompany] = useState(defaults); const [sales, setSales] = useState(sample); const [graph, setGraph] = useState(null); const [graphUrl, setGraphUrl] = useState(''); const [companyLogo, setCompanyLogo] = useState(null); const [logoUrl, setLogoUrl] = useState(''); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [done, setDone] = useState(false);
@@ -49,7 +50,7 @@ function App() {
   const generate = async () => {
     setError(''); setDone(false); setBusy(true);
     try { const form = new FormData(); Object.entries({month, ...company, sales_text: sales}).forEach(([k,v]) => form.append(k,v)); if (graph) form.append('graph', graph); if (companyLogo) form.append('company_logo', companyLogo);
-      const response = await fetch('http://localhost:8000/api/report', { method: 'POST', body: form });
+      const response = await fetch(`${API_URL}/api/report`, { method: 'POST', body: form });
       if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.detail || 'Não foi possível gerar o PDF. Verifique se a API está iniciada.'); }
       const blob = await response.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `relatorio-vendas-${month}.pdf`; a.click(); URL.revokeObjectURL(url); setDone(true);
     } catch (e) { setError(e.message.includes('fetch') ? 'Não consegui conectar ao gerador. Inicie o backend Python conforme as instruções do README.' : e.message); } finally { setBusy(false); }
