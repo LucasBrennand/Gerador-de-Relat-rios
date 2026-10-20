@@ -12,7 +12,7 @@ Localmente, o relatório é gerado pela API em `http://localhost:8000`. Em produ
 
 ## Entrada de vendas
 
-Cole uma venda por linha no formato `DD/MM/AAAA; valor`, como `01/08/2026; 1.287,00`. Linhas copiadas de uma tabela com espaços ou tabulação também são aceitas. Edite o cabeçalho, selecione o mês, anexe a logo e o gráfico em PNG/JPG para incluí-los no PDF. A logo é opcional e aparece ao lado dos dados da empresa.
+Cole uma venda por linha no formato `DD/MM/AAAA; valor`, como `14/03/2026; 125,50`. Linhas copiadas de uma tabela com espaços ou tabulação também são aceitas. Edite o cabeçalho, selecione o mês, anexe a logo e o gráfico em PNG/JPG para incluí-los no PDF. A logo é opcional e aparece ao lado dos dados da empresa.
 
 ## Publicar no Render
 
@@ -24,3 +24,12 @@ O arquivo `render.yaml` configura dois serviços a partir deste repositório: um
 4. Quando o deploy terminar, abra o serviço `lure-relatorios-site` para acessar o gerador.
 
 A API no plano gratuito pode ficar alguns minutos inativa depois de 15 minutos sem acesso; a primeira geração após esse período pode demorar enquanto o serviço reinicia.
+## Publicar o frontend no GitHub Pages
+
+Para servir o app pelo GitHub Pages (em vez de mostrar o README da raiz):
+
+1. Em **Settings > Pages**, mude **Source** para **GitHub Actions**.
+2. Em **Settings > Secrets and variables > Actions > Variables**, crie `VITE_API_URL` com a URL pública da API Render, por exemplo `https://lure-relatorios-api.onrender.com`.
+3. Envie as alterações para a branch `master`. O workflow `.github/workflows/pages.yml` compila `frontend` e publica `frontend/dist` automaticamente.
+
+Os dados da empresa são salvos somente no armazenamento local do navegador. Vendas, logo e gráfico começam vazios, evitando publicar no site os dados do PDF de demonstração.

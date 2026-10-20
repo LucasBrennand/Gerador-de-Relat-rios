@@ -16,7 +16,7 @@ from reportlab.platypus import Image, KeepTogether, Paragraph, SimpleDocTemplate
 
 app = FastAPI(title="Gerador de Relatório Mensal")
 frontend_origins = [origin.strip().rstrip("/") for origin in os.getenv("FRONTEND_ORIGINS", "").split(",") if origin.strip()]
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", *frontend_origins], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "https://lucasbrennand.github.io", *frontend_origins], allow_methods=["*"], allow_headers=["*"])
 
 
 def money(value: float) -> str:
@@ -47,7 +47,7 @@ async def generate_report(
         if len(parts) < 2:
             parts = line.split()
         if len(parts) < 2:
-            raise HTTPException(400, f"Linha {line_no}: use data e valor, por exemplo 01/08/2026; 1.287,00.")
+            raise HTTPException(400, f"Linha {line_no}: use data e valor, por exemplo 14/03/2026; 125,50.")
         date_text, amount_text = parts[0].strip(), parts[1].strip()
         try:
             date = datetime.strptime(date_text, "%d/%m/%Y")

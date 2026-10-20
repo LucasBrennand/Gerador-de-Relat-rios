@@ -1,48 +1,22 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ArrowDownToLine, BadgeCheck, Building2, CalendarDays, ChartNoAxesColumnIncreasing, FileText, ImagePlus, LockKeyhole, Menu, Plus, ReceiptText, Upload, X } from 'lucide-react';
 import './style.css';
 
-const sample = `01/08/2026; 1.287,00
-02/08/2026; 1.008,00
-03/08/2026; 819,00
-04/08/2026; 249,00
-05/08/2026; 1.855,00
-06/08/2026; 566,00
-07/08/2026; 1.203,40
-08/08/2026; 2.201,00
-09/08/2026; 968,00
-10/08/2026; 387,00
-11/08/2026; 1.459,75
-12/08/2026; 1.232,00
-13/08/2026; 841,00
-14/08/2026; 1.252,60
-15/08/2026; 2.588,95
-16/08/2026; 1.090,85
-17/08/2026; 592,85
-18/08/2026; 784,40
-19/08/2026; 1.497,05
-20/08/2026; 296,00
-21/08/2026; 286,00
-22/08/2026; 990,65
-23/08/2026; 1.916,00
-24/08/2026; 251,00
-25/08/2026; 165,00
-26/08/2026; 852,10
-27/08/2026; 512,00
-28/08/2026; 1.744,00
-29/08/2026; 2.289,35
-30/08/2026; 846,00
-31/08/2026; 1.061,40`;
-const defaults = { company: 'Luisa Brennand Barbosa Chiaperini · Lure Aromas', cnpj: '13.762.914/0001-31', phone: '(81) 98873-8687', email: 'Lurecosmeticos@hotmail.com', address: 'Rua Cônego Barata, 275 · Quiosque 2 Tamarineira · Recife - PE · CEP 52.051-020' };
+const defaults = { company: '', cnpj: '', phone: '', email: '', address: '' };
+const loadCompany = () => {
+  try { return { ...defaults, ...JSON.parse(localStorage.getItem('lure-company-profile') || '{}') }; }
+  catch { return defaults; }
+};
 const monthLabel = (value) => value ? new Date(`${value}-15T12:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
 const currency = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 function App() {
-  const [month, setMonth] = useState('2026-08'); const [company, setCompany] = useState(defaults); const [sales, setSales] = useState(sample); const [graph, setGraph] = useState(null); const [graphUrl, setGraphUrl] = useState(''); const [companyLogo, setCompanyLogo] = useState(null); const [logoUrl, setLogoUrl] = useState(''); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [done, setDone] = useState(false);
+  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)); const [company, setCompany] = useState(loadCompany); const [sales, setSales] = useState(''); const [graph, setGraph] = useState(null); const [graphUrl, setGraphUrl] = useState(''); const [companyLogo, setCompanyLogo] = useState(null); const [logoUrl, setLogoUrl] = useState(''); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [done, setDone] = useState(false);
   const rows = useMemo(() => sales.split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(line => { let p = line.replace(/\t/g,';').split(';'); if (p.length < 2) p = line.split(/\s+/); const raw = (p[1] || '').replace(/R\$|\s/g,'').replace(/\./g,'').replace(',','.'); return { date: p[0] || '', value: Number(raw) || 0 }; }), [sales]);
   const total = rows.reduce((s, r) => s + r.value, 0);
+  useEffect(() => { localStorage.setItem('lure-company-profile', JSON.stringify(company)); }, [company]);
   const setField = (key, value) => setCompany(c => ({...c, [key]: value}));
   const addLine = () => setSales(s => `${s}${s ? '\n' : ''}01/${month.slice(5)}/${month.slice(0,4)}; 0,00`);
   const chooseGraph = (file) => { if (!file) return; setGraph(file); setGraphUrl(URL.createObjectURL(file)); };
@@ -56,8 +30,8 @@ function App() {
     } catch (e) { setError(e.message.includes('fetch') ? 'Não consegui conectar ao gerador. Inicie o backend Python conforme as instruções do README.' : e.message); } finally { setBusy(false); }
   };
   return <div className="app-shell">
-    <aside className="sidebar"><a className="brand" href="#"><span className="brand-mark"><ReceiptText size={19}/></span><span>Lure<span className="brand-light"> · Relatórios</span></span></a><div className="side-label">ESPAÇO DE TRABALHO</div><button className="nav-item active"><FileText size={17}/>Relatório mensal</button><div className="side-bottom"><div className="secure"><LockKeyhole size={15}/><span>Seus dados ficam neste dispositivo.</span></div><div className="profile"><div className="avatar">L</div><div><strong>Lure Aromas</strong><span>Plano local</span></div><Menu size={16}/></div></div></aside>
-    <main className="main"><header className="topbar"><div className="crumb">Relatórios <span>/</span> <b>Novo relatório</b></div><div className="top-right"><span className="saved"><BadgeCheck size={15}/>Salvo neste dispositivo</span><div className="avatar small">L</div></div></header>
+    <aside className="sidebar"><a className="brand" href="#"><span className="brand-mark"><ReceiptText size={19}/></span><span>Lure<span className="brand-light"> · Relatórios</span></span></a><div className="side-label">ESPAÇO DE TRABALHO</div><button className="nav-item active"><FileText size={17}/>Relatório mensal</button><div className="side-bottom"><div className="secure"><LockKeyhole size={15}/><span>Os dados da empresa ficam neste navegador.</span></div><div className="profile"><div className="avatar">L</div><div><strong>Lure Aromas</strong><span>Plano local</span></div><Menu size={16}/></div></div></aside>
+    <main className="main"><header className="topbar"><div className="crumb">Relatórios <span>/</span> <b>Novo relatório</b></div><div className="top-right"><span className="saved"><BadgeCheck size={15}/>Empresa salva neste dispositivo</span><div className="avatar small">L</div></div></header>
       <div className="content"><div className="intro"><div><div className="eyebrow">CENTRAL DE RELATÓRIOS</div><h1>Relatório mensal de vendas</h1><p>Prepare o relatório do Bling com a identidade da sua empresa em poucos passos.</p></div><div className="month-select"><CalendarDays size={16}/><input aria-label="Mês do relatório" type="month" value={month} onChange={e=>setMonth(e.target.value)}/></div></div>
         <div className="progress"><div className="step current"><span>1</span><b>Dados do relatório</b></div><i/><div className="step"><span>2</span><b>Gerar PDF</b></div></div>
         <section className="card company-card"><div className="card-title"><div className="icon-box"><Building2 size={18}/></div><div><h2>Identificação da empresa</h2><p>Essas informações aparecem no cabeçalho do documento.</p></div><span className="badge">Cabeçalho</span></div><div className="fields"><label className="field wide"><span>Nome da empresa / responsável</span><input value={company.company} onChange={e=>setField('company',e.target.value)}/></label><label className="field"><span>CNPJ</span><input value={company.cnpj} onChange={e=>setField('cnpj',e.target.value)}/></label><label className="field"><span>Telefone</span><input value={company.phone} onChange={e=>setField('phone',e.target.value)}/></label><label className="field"><span>E-mail</span><input value={company.email} onChange={e=>setField('email',e.target.value)}/></label><label className="field wide"><span>Endereço</span><input value={company.address} onChange={e=>setField('address',e.target.value)}/></label></div></section>
