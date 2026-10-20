@@ -3,9 +3,19 @@ import { createRoot } from 'react-dom/client';
 import { ArrowDownToLine, BadgeCheck, Building2, CalendarDays, ChartNoAxesColumnIncreasing, FileText, ImagePlus, LockKeyhole, Menu, Plus, ReceiptText, Upload, X } from 'lucide-react';
 import './style.css';
 
-const defaults = { company: '', cnpj: '', phone: '', email: '', address: '' };
+const defaults = {
+  company: 'Luisa Brennand Barbosa Chiaperini · Lure Aromas',
+  cnpj: '13.762.914/0001-31',
+  phone: '(81) 98873-8687',
+  email: 'Lurecosmeticos@hotmail.com',
+  address: 'Rua Cônego Barata, 275 · Quiosque 2 Tamarineira · Recife - PE · CEP 52.051-020',
+};
 const loadCompany = () => {
-  try { return { ...defaults, ...JSON.parse(localStorage.getItem('lure-company-profile') || '{}') }; }
+  try {
+    const saved = JSON.parse(localStorage.getItem('lure-company-profile') || 'null');
+    if (!saved || !Object.values(saved).some(value => String(value || '').trim())) return defaults;
+    return { ...defaults, ...saved };
+  }
   catch { return defaults; }
 };
 const monthLabel = (value) => value ? new Date(`${value}-15T12:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
