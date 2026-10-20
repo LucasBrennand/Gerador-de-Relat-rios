@@ -16,7 +16,13 @@ from reportlab.platypus import Image, KeepTogether, Paragraph, SimpleDocTemplate
 
 app = FastAPI(title="Gerador de Relatório Mensal")
 frontend_origins = [origin.strip().rstrip("/") for origin in os.getenv("FRONTEND_ORIGINS", "").split(",") if origin.strip()]
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "https://lucasbrennand.github.io", "https://gerador-de-relat-rios-five.vercel.app", *frontend_origins], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "https://lucasbrennand.github.io", "https://gerador-de-relat-rios-five.vercel.app", *frontend_origins],
+    allow_origin_regex=r"https://[a-zA-Z0-9-]+-lucasbrennands-projects\.vercel\.app",
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def money(value: float) -> str:
